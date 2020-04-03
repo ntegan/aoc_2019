@@ -29,18 +29,19 @@
 #include "includes.h"
 
 void checkArgs(int argc, char **argv);
-int pathsFromFile(path_t** ppPaths, char* fName);
+int pathsFromFile(path_t** ppPaths, int* numPaths, char* fName);
 
 
 int main (int argc, char **argv) {
   // variables
   path_t* pPaths = NULL;
+  int numPaths = 0;
 
   // make sure have input file
   checkArgs(argc, argv);
 
   // load paths from file
-  if (pathsFromFile(&pPaths, argv[1])) {
+  if (pathsFromFile(&pPaths, &numPaths, argv[1])) {
     printf("Error: Invalid input file\n");
     exit (2);
   }
@@ -50,14 +51,18 @@ int main (int argc, char **argv) {
   return 0;
 }
 
-int pathsFromFile(path_t** ppPaths, char* fName) {
+int pathsFromFile(path_t** ppPaths, int* numPaths, char* fName) {
   FILE* f = NULL;
 
   // check if file exists
   f = fopen(fName, "r");
   if (!f) return 1;
 
+  // split file into strings based on number of lines
 
+  // set *numPaths = number of lines
+
+  // make a path from each line/string
 
   fclose (f);
 }
