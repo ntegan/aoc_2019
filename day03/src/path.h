@@ -37,5 +37,6 @@ void path_get_bounds      (path_t* pPath, int* fourInts);
 void path_free_moves      (path_t* pPath);
 void path_from_string     (path_t* pPath, char* string);
 void path_intersect_closest_origin (path_t* pPath, path_t* pPath2);
+void path_intersect_closest_origin_part_two (path_t* pPath, path_t* pPath2);
 
 #endif

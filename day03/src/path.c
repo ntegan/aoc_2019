@@ -1,6 +1,214 @@
 #include "includes.h"
 
 
+// origin x and y
+int ox, oy;
+int path_steps_to_point (path_t *curPath, int x, int y) {
+	int i; int distance = 0;int k;
+
+	// current x and y 
+	int cx = ox, cy = oy;
+
+	// walk through path's moves
+	for (i = 0; i < curPath->numMoves; i++) {
+		// 
+		switch (curPath->pMoves[i].direction) {
+			case 'U':
+				for (k = 0; k < curPath->pMoves[i].count; k++) {
+					cy ++; distance++;
+					if (cx == x && cy == y) return distance;
+				}
+			break;
+			case 'D':
+				for (k = 0; k < curPath->pMoves[i].count; k++) {
+					cy --; distance++;
+					if (cx == x && cy == y) return distance;
+				}
+			break;
+			case 'L':
+				for (k = 0; k < curPath->pMoves[i].count; k++) {
+					cx --; distance++;
+					if (cx == x && cy == y) return distance;
+				}
+			break;
+			case 'R':
+				for (k = 0; k < curPath->pMoves[i].count; k++) {
+					cx ++; distance++;
+					if (cx == x && cy == y) return distance;
+				}
+			break;
+			default:
+				printf("UH OH\n");
+			break;
+
+		}
+	}
+	return distance;
+}
+
+// Yeah this is a giant function, I got tired of trying to modularize for day3
+void path_intersect_closest_origin_part_two (path_t* p1, path_t* p2) {
+
+	// bounds
+	//u, down, left, right (max from origin)
+	int b1[4], b2[4];
+	path_get_bounds(p1, b1);
+	path_get_bounds(p2, b2);
+
+
+	printf ("Got paths: %d %d\n", p1->numMoves, p2->numMoves);
+
+	// Find max mu,mdm,ml,mr
+	int mmu, mmd, mml, mmr;		int i;
+	i = 0;
+	mmu = (b1[i] > b2[i]) ? b1[i] : b2[i]; i++;
+	mmd = (b1[i] < b2[i]) ? b1[i] : b2[i]; i++;
+	mml = (b1[i] < b2[i]) ? b1[i] : b2[i]; i++;
+	mmr = (b1[i] > b2[i]) ? b1[i] : b2[i];
+	//printf ("%d %d %d %d", mmu, mmd, mml, mmr);
+	//
+	
+/*
+Example map
+ asciiflow.com
+
+                                 Array dimmensions
+e.g. mmu=7         Height: 13          13     (0->12)
+     mmd=-5                            x
+     mml=-4        Width:  11          11     (0->10)
+     mmr=6
+   +
+   |
+12 |               Origin 'o' at
+11 |               4 horizontal, 5 vertical
+10 |
+ 9 |
+ 8 |
+ 7 |
+ 6 |
+ 5 |    o
+ 4 |
+ 3 |
+ 2 |
+ 1 |
+ 0 |
+   +------------+
+
+    01234567891
+              0
+*/
+
+	// width and height
+	int w = mmr - mml + 1, h = mmu-mmd + 1;
+	int **map;
+
+	// Allocate array for map
+	map = (int**) malloc (sizeof(int*) * w);
+	for (i = 0; i < w; i++) { map[i] = (int*) malloc (sizeof(int) * h); 
+				  memset (map[i], 0, h * sizeof(int)); }
+
+	// add paths to map
+	int PATH_ONE_MARKER    = (1 << 0),
+	    PATH_TWO_MARKER    = (1 << 1),
+	    PATH_ORIGIN_MARKER = (1 << 2);
+
+	// starting position (i.e. origin)
+	// 	Also going to use this as the current position as walk through path
+	int sx = ABS(mml), sy = ABS(mmd);
+	ox = sx; oy = sy;
+
+	// starting marker
+	map[sx][sy] |= PATH_ORIGIN_MARKER;
+
+	path_t* curPath; int j, k;
+	int curMarker;
+
+	for (j = 0; j < 2; j++) {
+		// reset starting position
+		sx = ABS(mml); sy = ABS(mmd);
+
+		// pick path to add to map
+		// 	add it to origin
+		if (j == 0) { curMarker = PATH_ONE_MARKER; curPath = p1; map[sx][sy] |= PATH_ONE_MARKER; } 
+		else        { curMarker = PATH_TWO_MARKER; curPath = p2; map[sx][sy] |= PATH_TWO_MARKER; }
+
+		// walk through path's moves
+		for (i = 0; i < curPath->numMoves; i++) {
+			// 
+			switch (curPath->pMoves[i].direction) {
+				case 'U':
+					for (k = 0; k < curPath->pMoves[i].count; k++) {
+						if (sy >= (h - 1)) printf ("UHOH Y HIGH\n");
+						sy ++; map[sx][sy] |= curMarker;
+					}
+				break;
+				case 'D':
+					for (k = 0; k < curPath->pMoves[i].count; k++) {
+						if (sy <= 0) printf ("UHOH y low\n");
+						sy --; map[sx][sy] |= curMarker;
+					}
+				break;
+				case 'L':
+					for (k = 0; k < curPath->pMoves[i].count; k++) {
+						if (sx <= 0) printf ("UHOH x low\n");
+						sx --; map[sx][sy] |= curMarker;
+					}
+				break;
+				case 'R':
+					for (k = 0; k < curPath->pMoves[i].count; k++) {
+						if (sx >= (w - 1)) { printf ("UHOH X HIGH\n"); printf ("%d\n", sx); }
+						sx ++; map[sx][sy] |= curMarker;
+					}
+				break;
+				default:
+					printf("UH OH\n");
+				break;
+
+			}
+		}
+
+	}
+
+	// closest x, closest y, closest distance, temporary distance
+	int cx = w, cy = h, cd = w * h; int steps1, steps2;
+
+	// reset starting position
+	// 	To act as origin
+	sx = ABS(mml); sy = ABS(mmd);
+
+	// find intersection closest
+	int test = PATH_ONE_MARKER | PATH_TWO_MARKER;
+
+	for (i = 0; i < w; i++) {
+		for (j = 0; j < h; j++) {
+			// if current spot on grid is an intersection
+			if ((map[i][j] == test)) {
+				printf ("Intersect: (%d,%d)\n", i + mml, j + mmd); 
+
+				steps1 = path_steps_to_point (p1, i, j);
+				steps2 = path_steps_to_point (p2, i, j);
+
+				
+				
+				// if closer
+				if (steps1 + steps2 < cd) { 
+					cd = steps1 + steps2; 
+					cx = i; cy = j; }	
+			}
+		}
+
+	}
+
+	printf ("Closest distance: %d at (%d,%d) from 0,0\n", cd, cx, cy);
+	
+
+	// free map
+	if (map) { for (i = 0; i < w; i++) 
+		   if (map[i]) free (map[i]); free (map); }
+
+}
+
+
 void path_intersect_closest_origin (path_t* p1, path_t* p2) {
 
 	// bounds
