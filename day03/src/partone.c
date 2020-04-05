@@ -49,7 +49,7 @@ int main (int argc, char **argv) {
   
   // do stuff with paths
   //for (int i = 0; i < numPaths; i++) path_print (&pPaths[i]);
-  for (int i = 0; i < numPaths; i++) path_print_map (&pPaths[i]);
+  //for (int i = 0; i < numPaths; i++) path_print_map (&pPaths[i]);
   if (numPaths == 2) path_intersect_closest_origin (&pPaths[0], &pPaths[1]);
   
 

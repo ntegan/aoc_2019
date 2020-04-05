@@ -5,13 +5,31 @@
 //
 void path_intersect_closest_origin (path_t* p1, path_t* p2) {
 
+	// bounds
+	//u, down, left, right (max from origin)
+	int b1[4], b2[4];
+	path_get_bounds(p1, b1);
+	path_get_bounds(p2, b2);
+
 
 	printf ("Got paths: %d %d\n", p1->numMoves, p2->numMoves);
 
+	// Find max mu,mdm,ml,mr
+	int mmu, mmd, mml, mmr;		int i;
+	i = 0;
+	mmu = (b1[i] > b2[i]) ? b1[i] : b2[i]; i++;
+	mmd = (b1[i] < b2[i]) ? b1[i] : b2[i]; i++;
+	mml = (b1[i] < b2[i]) ? b1[i] : b2[i]; i++;
+	mmr = (b1[i] > b2[i]) ? b1[i] : b2[i];
+	//printf ("%d %d %d %d", mmu, mmd, mml, mmr);
+
+	//
+	// subtract from coordinates, so goes from 0,0 bottom left to height and width
+	//
+	// make array of 0,1,2 intersect
+
 }
-void path_print_map       (path_t* pPath) {
-	// TODO: gave up doing the ascii map printing
-	
+void path_get_bounds      (path_t* pPath, int* fourInts) {
 	// count max distance traveled in each of 4 directions, relative to starting point
 	// 	// max up, down, left, right
 	int mu = 0, md = 0, ml = 0, mr = 0;
@@ -48,7 +66,12 @@ void path_print_map       (path_t* pPath) {
 
 	}
 	//printf ("%d %d %d %d\n", mu, md, ml, mr);
+	fourInts[0] = mu;
+	fourInts[1] = md;
+	fourInts[2] = ml;
+	fourInts[3] = mr;
 }
+
 void path_print           (path_t* pPath) {
 	printf ("Path has %d moves!\n", pPath->numMoves);
 	int i;
