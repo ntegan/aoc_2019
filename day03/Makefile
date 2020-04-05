@@ -15,8 +15,8 @@ clean:
 edit:
 	@vim src/includes.h src/partone.c src/path.h src/path.c  
 
-.PHONY: run
-run: d3p1
-	@./d3p1 input
+.PHONY: run1
+run1: d3p1
+	@./d3p1 input1
 
 

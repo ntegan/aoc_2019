@@ -7,5 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define ABS(x) (((x) < 0) ? (-(x)) : (x))
+
 
 #endif
