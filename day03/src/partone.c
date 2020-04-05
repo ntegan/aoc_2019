@@ -47,6 +47,9 @@ int main (int argc, char **argv) {
   }
   
   
+  // do stuff with paths
+
+  // free paths
 
   return 0;
 }
@@ -58,13 +61,40 @@ int pathsFromFile(path_t** ppPaths, int* numPaths, char* fName) {
   f = fopen(fName, "r");
   if (!f) return 1;
 
-  // split file into strings based on number of lines
+  // READ FILE INTO LINES
+  // 		Assume 2 lines
+  int numLines = 2; int bufSize = 16384;	// HOPEFULLY LINES < 16384 chars
+  // just set numPaths = numLines = assumed 2
+  *numPaths = numLines;
+  char **pStrings = (char**) malloc (numLines * sizeof (char*));
+  // might as well init ppPathsa while we at it
+  *ppPaths = (path_t*) malloc (numLines * sizeof (path_t));
+  //{
+	  int i;
+	  for (i = 0; i < numLines; i++) {
+		  // Read lines into string
+		  pStrings[i] = (char*) malloc (bufSize * sizeof (char));
+		  memset (pStrings[i], 0, bufSize * sizeof (char));
+		  if (!fgets (pStrings[i], bufSize, f)) {
+			printf(" UH OH! EOF?\n"); exit (4);
+		  }
 
-  // set *numPaths = number of lines
+		  // read  strings into paths
+		  path_from_string (&(*ppPaths)[i], pStrings[i]);
+	  }
+  //}
 
-  // make a path from each line/string
-
+  // free strings in pStrings
+  //{
+//	  int i;
+	  for (i = 0; i < numLines; i++) {
+		  if (pStrings[i]) free (pStrings[i]);
+	  }
+  //}
+  if (pStrings) free (pStrings);
   fclose (f);
+  // success
+  return 0;
 }
 
 void checkArgs(int argc, char **argv) {

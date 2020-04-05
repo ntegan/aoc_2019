@@ -32,6 +32,6 @@ struct path {
 ////
 
 void path_print           (path_t* pPath);
-void path_from_string     (char* string);
+void path_from_string     (path_t* pPath, char* string);
 
 #endif
