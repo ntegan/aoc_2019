@@ -35,7 +35,7 @@ int pathsFromFile(path_t** ppPaths, int* numPaths, char* fName);
 int main (int argc, char **argv) {
   // variables
   path_t* pPaths = NULL;
-  int numPaths = 0;
+  int numPaths = 0; int i;
 
   // make sure have input file
   checkArgs(argc, argv);
@@ -48,8 +48,15 @@ int main (int argc, char **argv) {
   
   
   // do stuff with paths
+  //for (int i = 0; i < numPaths; i++) path_print (&pPaths[i]);
+  for (int i = 0; i < numPaths; i++) path_print_map (&pPaths[i]);
+  if (numPaths == 2) path_intersect_closest_origin (&pPaths[0], &pPaths[1]);
+  
 
+  // free moves
+  for (int i = 0; i < numPaths; i++) path_free_moves (&pPaths[i]);
   // free paths
+  if (pPaths) free (pPaths);
 
   return 0;
 }
@@ -69,28 +76,23 @@ int pathsFromFile(path_t** ppPaths, int* numPaths, char* fName) {
   char **pStrings = (char**) malloc (numLines * sizeof (char*));
   // might as well init ppPathsa while we at it
   *ppPaths = (path_t*) malloc (numLines * sizeof (path_t));
-  //{
-	  int i;
-	  for (i = 0; i < numLines; i++) {
-		  // Read lines into string
-		  pStrings[i] = (char*) malloc (bufSize * sizeof (char));
-		  memset (pStrings[i], 0, bufSize * sizeof (char));
-		  if (!fgets (pStrings[i], bufSize, f)) {
-			printf(" UH OH! EOF?\n"); exit (4);
-		  }
-
-		  // read  strings into paths
-		  path_from_string (&(*ppPaths)[i], pStrings[i]);
+  int i;
+  for (i = 0; i < numLines; i++) {
+	  // Read lines into string
+	  pStrings[i] = (char*) malloc (bufSize * sizeof (char));
+	  memset (pStrings[i], 0, bufSize * sizeof (char));
+	  if (!fgets (pStrings[i], bufSize, f)) {
+		printf(" UH OH! EOF?\n"); exit (4);
 	  }
-  //}
+
+	  // read  strings into paths
+	  path_from_string (&(*ppPaths)[i], pStrings[i]);
+  }
 
   // free strings in pStrings
-  //{
-//	  int i;
-	  for (i = 0; i < numLines; i++) {
-		  if (pStrings[i]) free (pStrings[i]);
-	  }
-  //}
+  for (i = 0; i < numLines; i++) {
+	  if (pStrings[i]) free (pStrings[i]);
+  }
   if (pStrings) free (pStrings);
   fclose (f);
   // success

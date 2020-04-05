@@ -32,6 +32,9 @@ struct path {
 ////
 
 void path_print           (path_t* pPath);
+void path_print_map       (path_t* pPath);
+void path_free_moves      (path_t* pPath);
 void path_from_string     (path_t* pPath, char* string);
+void path_intersect_closest_origin (path_t* pPath, path_t* pPath2);
 
 #endif
